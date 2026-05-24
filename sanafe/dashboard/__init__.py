@@ -1,6 +1,10 @@
-"""SANA-FE interactive dashboard (Plotly Dash)."""
+"""SANA-FE interactive dashboard (Plotly Dash).
+
+Dash and Plotly are optional dependencies. Import submodules directly
+(e.g. ``from sanafe.dashboard.app import main``) or run the dashboard
+with ``python -m sanafe.dashboard``.
+"""
 
 from sanafe.dashboard import theme
-from sanafe.dashboard.app import create_app, main
 
-__all__ = ["theme", "create_app", "main"]
+__all__ = ["theme"]
