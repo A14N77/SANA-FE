@@ -30,15 +30,19 @@ _INDEX_TEMPLATE = """<!DOCTYPE html>
 """.replace("__BG__", t.OFF_WHITE).replace("__SHADOW_HOVER__", t.SHADOW_HOVER)
 
 
-def create_app() -> dash.Dash:
+def create_app(results=None) -> dash.Dash:
+    from sanafe.dashboard.callbacks import register
+
     app = dash.Dash(__name__, title="SANA-FE Dashboard", update_title=None)
     app.index_string = _INDEX_TEMPLATE
     app.layout = build_layout()
+    register(app, results=results)
     return app
 
 
-def main(host: str = "127.0.0.1", port: int = 8050, debug: bool = False) -> None:
-    app = create_app()
+def main(host: str = "127.0.0.1", port: int = 8050, debug: bool = False,
+         results=None) -> None:
+    app = create_app(results=results)
     app.run(host=host, port=port, debug=debug)
 
 
