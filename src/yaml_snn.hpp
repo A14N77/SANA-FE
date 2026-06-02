@@ -57,8 +57,8 @@ void description_parse_edge_attributes(Connection &edge, const ryml::Parser &par
 std::tuple<NeuronAddress, NeuronAddress> description_parse_edge_description(const std::string_view &description, const ryml::Parser &parser, const ryml::ConstNodeRef node);
 
 // Functions for writing YAML
-void yaml_write_network(std::filesystem::path path, const sanafe::SpikingNetwork &network);
-void yaml_write_mappings_file(std::filesystem::path path, const SpikingNetwork &network);
+void yaml_write_network(const std::filesystem::path &path, const sanafe::SpikingNetwork &network);
+void yaml_write_mappings_file(const std::filesystem::path &path, const SpikingNetwork &network);
 void yaml_create_mappings(ryml::NodeRef &node, std::vector<std::reference_wrapper<const Neuron>> &all_neurons, std::list<std::string> &strings);
 c4::yml::NodeRef yaml_serialize_network(c4::yml::NodeRef root, const sanafe::SpikingNetwork &network, std::list<std::string> &strings);
 c4::yml::NodeRef yaml_serialize_neuron_group(c4::yml::NodeRef parent, const NeuronGroup &group, std::list<std::string> &strings);

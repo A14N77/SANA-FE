@@ -345,9 +345,9 @@ void sanafe::schedule_handle_message(
     m.received_timestamp = std::max(
             noc.core_finished_receiving[dest_core], earliest_received_time);
 
-    noc.core_finished_receiving[dest_core] =
-            std::max((noc.core_finished_receiving[dest_core] + m.processing_delay),
-                    (earliest_received_time + m.processing_delay));
+    noc.core_finished_receiving[dest_core] = std::max(
+            (noc.core_finished_receiving[dest_core] + m.processing_delay),
+            (earliest_received_time + m.processing_delay));
     m.processed_timestamp = noc.core_finished_receiving[dest_core];
 
     // Now, push the message into the right receiving queue. Calculate the

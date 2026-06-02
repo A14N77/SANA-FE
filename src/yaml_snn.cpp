@@ -1055,8 +1055,8 @@ void sanafe::description_map_neuron(const ryml::Parser &parser, Neuron &n,
     n.map_to_core(core);
 }
 
-void sanafe::yaml_write_network(
-        const std::filesystem::path path, const sanafe::SpikingNetwork &network)
+void sanafe::yaml_write_network(const std::filesystem::path &path,
+        const sanafe::SpikingNetwork &network)
 {
     std::ifstream previous_content(path);
 
@@ -1415,8 +1415,8 @@ ryml::NodeRef sanafe::description_serialize_variant_value_to_yaml(
     return node;
 }
 
-void sanafe::yaml_write_mappings_file(
-        const std::filesystem::path path, const sanafe::SpikingNetwork &network)
+void sanafe::yaml_write_mappings_file(const std::filesystem::path &path,
+        const sanafe::SpikingNetwork &network)
 {
     std::ifstream previous_content(path);
 
@@ -1427,7 +1427,7 @@ void sanafe::yaml_write_mappings_file(
     // Try to read existing content if file exists and is not empty
     const bool file_empty =
             (previous_content.peek() == std::ifstream::traits_type::eof());
-    if (!previous_content.is_open() || !file_empty)
+    if (previous_content.is_open() && !file_empty)
     {
         // Read existing YAML content
         const std::string existing_content(
@@ -1445,6 +1445,7 @@ void sanafe::yaml_write_mappings_file(
             // Check for invalid YAML in the existing file (it may not even be
             //  a YAML file at all). In this case, we should warn the user and
             //  go no further
+            previous_content.close();
             throw std::runtime_error(
                     "Attempted to read existing file: " + path.string() +
                     " but it is not a valid YAML document. "

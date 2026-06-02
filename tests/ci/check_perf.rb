@@ -12,7 +12,8 @@ arch_file = "arch/example_chip.yaml"
 snn_file = "snn/example_snn.yaml"
 steps = 100000
 
-perf_output = `(/usr/bin/time -f "%e" #{sim_path} #{arch_file} #{snn_file} #{steps} > /dev/null) 2>&1`
+puts "Running performance checks..."
+perf_output = `(/usr/bin/time -f "%e" #{sim_path} -S 0 -N 1 #{arch_file} #{snn_file} #{steps} > /dev/null) 2>&1`
 runtime = perf_output.to_f
 
 baseline_file = "tests/ci/perf_baseline.txt"

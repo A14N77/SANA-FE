@@ -171,13 +171,14 @@ project(ryml-quickstart LANGUAGES CXX)
 set(RYML_VERSION "v0.13.0")
 message(STATUS "FetchContent for tag: ${RYML_VERSION}")
 set(RYML_INSTALL OFF)
-set(RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS ON)
+set(RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS ON CACHE BOOL "Make ryml throw on errors" FORCE)
 
 include(FetchContent)
 FetchContent_Declare(ryml
     GIT_REPOSITORY https://github.com/biojppm/rapidyaml.git
     GIT_TAG ${RYML_VERSION}
     GIT_SHALLOW FALSE  # ensure submodules are checked out
+    EXCLUDE_FROM_ALL  # stop it trying to install outside of SANA-FE
 )
 FetchContent_MakeAvailable(ryml)
 ##### END OF rapid-yaml
