@@ -10,6 +10,7 @@ writes DONE, potential/spike come out, cycle count becomes latency and energy.
 - `backends/cpp_core.cpp` **TODO**: C++ core
 - `backends/sv_core.cpp` Verilator wrapper, built only if Verilator is found
 - `rtl/riscv_soma_top.sv` **TODO**: ports and MMIO are fixed, pipeline is yours
+- `rtl/riscv_soma_tb.sv` iverilog driver: loads the hex, runs one update, prints the result
 - `firmware/lif.hex` LIF update in RV32I (instructions in the comments)
 - `arch/riscv_chip.yaml`, `snn/riscv_test.yaml` example
 
