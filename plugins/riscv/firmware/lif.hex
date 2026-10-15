@@ -1,4 +1,4 @@
-# lif.hex: leaky integrate-and-fire update, RV32I, one word per line.
+# lif.hex: LIF update, RV32I
 # MMIO base 0x80000000: +0 current_in +4 potential_in +8 threshold +C reset
 #   +10 leak_shift +14 bias | +18 potential_out +1C spike +20 done
 800002b7  # lui   t0, 0x80000

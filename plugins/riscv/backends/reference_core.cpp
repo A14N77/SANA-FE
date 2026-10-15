@@ -1,15 +1,4 @@
-// Copyright (c) 2026 - The University of Texas at Austin
-//  This work was produced under contract #2317831 to National Technology and
-//  Engineering Solutions of Sandia, LLC which is under contract
-//  No. DE-NA0003525 with the U.S. Department of Energy.
-// reference_core.cpp
-//
-// Golden-model backend. It does not execute instructions at all: it computes
-//  the LIF update directly with the integer semantics the firmware is meant to
-//  implement, and charges a fixed nominal cycle count. Use it to:
-//   - run the plugin end-to-end before any real core exists, and
-//   - bit-match the cpp and sv backends (same inputs must give the same
-//     potential_out and spike).
+// reference_core.cpp: golden model, no instruction execution
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -19,10 +8,6 @@
 
 namespace
 {
-// Roughly the dynamic instruction count of firmware/lif.hex on a core with no
-//  stalls. Purely nominal; a real backend reports what it measured.
-constexpr uint32_t reference_cycles_per_update = 18U;
-
 class ReferenceCore final : public riscv::Core
 {
 public:
@@ -31,16 +16,13 @@ public:
         return "reference";
     }
 
-    void load_firmware(const std::vector<uint32_t> & /*words*/) override
-    {
-        // Nothing to load; behaviour is hard-coded
-    }
+    void load_firmware(const std::vector<uint32_t> & /*words*/) override {}
 
     riscv::NeuronOutputs run(const riscv::NeuronInputs &in,
             const uint32_t max_cycles) override
     {
         riscv::NeuronOutputs out = riscv::lif_reference(in);
-        out.cycles = reference_cycles_per_update;
+        out.cycles = 18U;
         out.completed = (out.cycles <= max_cycles);
         return out;
     }

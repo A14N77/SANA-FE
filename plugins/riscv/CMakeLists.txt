@@ -21,19 +21,12 @@ target_include_directories(riscv_soma PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../../src"
 )
 target_link_libraries(riscv_soma PRIVATE ${CMAKE_DL_LIBS})
-# Fixed name on every platform so arch files can say plugins/riscv/libriscv_soma.so
 set_target_properties(riscv_soma PROPERTIES
     PREFIX "lib"
     SUFFIX ".so"
     WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
-# Lets the plugin find firmware/*.hex in the source tree as a last resort
-target_compile_definitions(riscv_soma PRIVATE
-    RISCV_PLUGIN_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
-)
 
-# Strict warnings on hand-written sources only; Verilator-generated code is
-#  left alone.
 if(MSVC)
     set_source_files_properties(${RISCV_SOMA_SOURCES} backends/sv_core.cpp
         PROPERTIES COMPILE_OPTIONS "/W4;/WX")
@@ -42,9 +35,6 @@ else()
         PROPERTIES COMPILE_OPTIONS "-Wall;-Wextra;-pedantic;-Werror")
 endif()
 
-# ---------------------------------------------------------------------------
-# SystemVerilog backend (optional, needs Verilator >= 4.2)
-# ---------------------------------------------------------------------------
 if(RISCV_SOMA_ENABLE_SV)
     find_package(verilator QUIET HINTS $ENV{VERILATOR_ROOT} ${VERILATOR_ROOT})
 endif()
@@ -64,10 +54,6 @@ else()
                    "(backend: sv will error at runtime; reference and cpp still work)")
 endif()
 
-# ---------------------------------------------------------------------------
-# Copy firmware images next to the library so `firmware: lif.hex` resolves
-#  relative to the plugin path given in the arch file.
-# ---------------------------------------------------------------------------
 file(GLOB RISCV_SOMA_FIRMWARE "${CMAKE_CURRENT_SOURCE_DIR}/firmware/*.hex")
 foreach(hex ${RISCV_SOMA_FIRMWARE})
     add_custom_command(TARGET riscv_soma POST_BUILD
