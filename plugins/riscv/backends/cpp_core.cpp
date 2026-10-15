@@ -1,12 +1,8 @@
-// Copyright (c) 2026 - The University of Texas at Austin
-//  This work was produced under contract #2317831 to National Technology and
-//  Engineering Solutions of Sandia, LLC which is under contract
-//  No. DE-NA0003525 with the U.S. Department of Energy.
 // cpp_core.cpp
 //
-// C++ RISC-V backend. Implement run(): reset, present the inputs (memory map
-//  in riscv_core.hpp), execute `imem` from pc=0 until the firmware writes
-//  mmio_done, and report cycles.
+// Implement run(): reset the core, expose `in` through the MMIO map in
+// riscv_core.hpp, execute `imem` from pc=0 until the firmware stores to
+// mmio_done, then return potential_out, spike and the cycle count.
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
@@ -34,8 +30,7 @@ public:
             const uint32_t /*max_cycles*/) override
     {
         // TODO(Alan)
-        throw std::logic_error("CppCore::run() not implemented "
-                               "(plugins/riscv/backends/cpp_core.cpp)");
+        throw std::logic_error("CppCore::run() not implemented");
     }
 
 private:
