@@ -12,20 +12,35 @@ basic spike and voltage probes.
 
 # TODO: support recordInGraph
 # TODO: read from arch object in the future
-from fugu.backends import Backend
 from collections import defaultdict
-import sanafe
+
+from fugu.backends import Backend
 import pandas as pd
 
+import sanafe
+
+# pylint: disable=invalid-name,no-self-argument,attribute-defined-outside-init
 class sanafe_Backend(Backend):
+    """SANA-FE Fugu backend"""
     _net = None
     _arch = None
+
+    def __init__(self):
+        self.net = None
+        self.fugu_name_to_neuron_number = None
+        self.input_map = None
+        self.arch_name = None
+        self.arch = None
+        self.debug_mode = None
+        self.return_potentials = False
+        self.record = False
+        self.ds_format = False
 
     def _map_to_cores(self):
         """
         Assigns neurons to cores based on capacity and hardware compatibility.
         """
-        MAX_NEURONS_PER_CORE = 1024
+        max_neurons_per_core = 1024
         cores = self.arch.cores()
         total_cores = len(cores)
         neurons_per_core = {i: 0 for i in range(total_cores)}
@@ -33,10 +48,10 @@ class sanafe_Backend(Backend):
         current_core_id = 0
         # We assume self.node_map contains {fugu_id: sanafe_neuron_object}
         for fugu_node_id, neuron in self.node_map.items():
-            if neurons_per_core[current_core_id] >= MAX_NEURONS_PER_CORE:
+            if neurons_per_core[current_core_id] >= max_neurons_per_core:
                 # There is space in the core
                 current_core_id += 1
-                assert(current_core_id < total_cores)
+                assert current_core_id < total_cores
             neurons_per_core[current_core_id] += 1
 
             # Assign spike inputs to custom hardware
@@ -79,10 +94,10 @@ class sanafe_Backend(Backend):
         self.brick_groups = defaultdict(list)
         neurons_to_record = set()
         input_neurons = set()
-        record_all = True if self.record == "all" else False
+        record_all = self.record == "all"
 
         # --- STEP 2: Create input spike trains and outputs probes ---
-        for brick_id, props in self.fugu_circuit.nodes.data():
+        for _, props in self.fugu_circuit.nodes.data():
             if props.get("layer") == "input":
                 for timestep, neurons in enumerate(props['brick']):
                     for n in neurons:
@@ -160,13 +175,16 @@ class sanafe_Backend(Backend):
                 src.connect_to_neuron(dst, props)
 
 
-    def compile(self, scaffold, compile_args={}):
+    def compile(self, scaffold, compile_args=None):
         """
         Compile Fugu scaffold as SANA-FE network
         Args:
             scaffold: The Fugu scaffold containing one or more bricks
-            compile_args (Dict, optional): Arguments controlling compilation. Defaults to {}.
+            compile_args (Dict, optional): Arguments controlling compilation. Defaults to None.
         """
+        if compile_args is None:
+            compile_args = {}
+
         # creates neuron populations and synapses
         self.scaffold = scaffold
         self.fugu_circuit = scaffold.circuit
@@ -212,7 +230,8 @@ class sanafe_Backend(Backend):
         chip = sanafe.SpikingChip(self.arch)
         chip.load(self.net)
 
-        with open("spikes.csv", "w") as spike_trace, open("potentials.csv", "w") as potential_trace:
+        with (open("spikes.csv", "w", encoding="utf-8") as spike_trace,
+              open("potentials.csv", "w", encoding="utf-8") as potential_trace):
             chip.sim(n_steps, spike_trace=spike_trace, potential_trace=potential_trace)
 
         # Parse output data
@@ -260,14 +279,16 @@ class sanafe_Backend(Backend):
         Resets time-step to 0 and resets neuron/synapse properties
         """
         self._build_network()
-        pass
 
-    def set_properties(self, properties={}):
+    def set_properties(self, properties=None):
         """
         Set properties for specific neurons and synapses
         Args:
-            properties (dict, optional): dictionary of properties for bricks. Defaults to {}.
+            properties (dict, optional): dictionary of properties for bricks. Defaults to None.
         """
+        if properties is None:
+            properties = {}
+
         for brick in properties:
             if brick != 'compile_args':
                 brick_id = self.brick_to_number[brick]
@@ -279,7 +300,7 @@ class sanafe_Backend(Backend):
         Reset input spike trains
         """
         # Clean out old spike structures.
-        for n, node in self.fugu_graph.nodes.data():
+        for _, node in self.fugu_graph.nodes.data():
             if 'spikes' in node:
                 del node['spikes']  # Allow list to be built from scratch.
         # When run() is called, network will be rebuilt with new spike times.

@@ -96,7 +96,7 @@ public:
     std::string default_synapse_hw_name;
     std::string dendrite_hw_name;
     std::string parent_group_name;
-    std::reference_wrapper<SpikingNetwork> parent_net;
+    SpikingNetwork *parent_net;
     size_t offset{};
     std::optional<CoreAddress> core_address{std::nullopt};
     size_t mapping_order{};
@@ -123,6 +123,7 @@ public:
     [[nodiscard]] const std::string &get_name() const { return name; }
     explicit NeuronGroup(std::string group_name, SpikingNetwork &net, size_t neuron_count, const NeuronConfiguration &default_config);
 
+    void map_to_core(const CoreConfiguration &core);
     void connect_neurons_dense(NeuronGroup &dest_group, const std::map<std::string, std::vector<ModelAttribute>> &attribute_lists);
     void connect_neurons_sparse(NeuronGroup &dest_group, const std::map<std::string, std::vector<ModelAttribute>> &attribute_lists, const std::vector<std::pair<size_t, size_t> > &source_dest_id_pairs);
     void connect_neurons_conv2d(NeuronGroup &dest_group, const std::map<std::string, std::vector<ModelAttribute>> &attribute_lists, const Conv2DParameters &convolution);

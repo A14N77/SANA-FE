@@ -129,6 +129,13 @@ Example:
     ...     28, 28, 1, 3, 3, 32, 1, 1)
 )pbdoc";
 
+constexpr const char *group_map_to_core_doc = R"pbdoc(
+Assign all neurons in this neuron group to a specific hardware core.
+
+:param core_configuration: Target core for neuron placement
+:type core_configuration: Core
+)pbdoc";
+
 // Neuron class
 constexpr const char *neuron_doc = R"pbdoc(
 Individual spiking neuron with configurable hardware mapping and attributes.

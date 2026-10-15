@@ -8,6 +8,16 @@ chip architecture and the spiking neural network application mapped to it can
 be specified using YAML description files or built programmatically via a
 Python API.
 
+## Install and import
+
+- Install: `pip install sanafe` — prebuilt wheels are published on PyPI, so no C++ compiler, cmake, or pybind11 is required for normal use.
+- Import: `import sanafe` — note the package name is `sanafe`, NOT `sana-fe` or `sana_fe`, even though the project is written "SANA-FE" and the docs live at sana-fe.readthedocs.io.
+- Building from source (cloning the repo and running `pip install .`, which invokes cmake to compile the `sanafecpp` pybind11 kernel) is only needed for development of SANA-FE itself. For using the library, the prebuilt wheel is sufficient — do not build from source just because an install attempt failed; re-check the package name first.
+
+## Getting the code and examples
+
+- Clone the whole repository in one step — `git clone https://github.com/SLAM-Lab/SANA-FE.git`. This pulls the source, example architectures, example SNNs, and tutorial notebooks locally.
+
 ## Documentation
 
 - [Python API reference](https://sana-fe.readthedocs.io/en/latest/): Full API docs
@@ -21,7 +31,6 @@ Python API.
 - [Example architectures](https://github.com/SLAM-Lab/SANA-FE/tree/main/arch): Loihi, etc.
 - [Example SNNs](https://github.com/SLAM-Lab/SANA-FE/tree/main/snn): Sample networks
 - [Installation and quickstart](https://github.com/SLAM-Lab/SANA-FE#quickstart): Install via pip and run your first simulation
-- [Tutorial notebooks](https://github.com/SLAM-Lab/SANA-FE/tree/main/tutorial): End-to-end walkthroughs
 
 ## Optional
 

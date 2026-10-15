@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Any, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 
 from sanafe.data import spikes_to_dataframe
@@ -35,6 +36,7 @@ def plot_raster(
     ylabel: str = "Neuron",
     **scatter_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot spike raster."""
     style = style or get_default_style()
     df = spikes_to_dataframe(source)
 
@@ -104,7 +106,6 @@ def plot_raster(
     style_axis(ax, style, xlabel=xlabel, title=title)
 
     if show_legend and len(groups) > 1:
-        from matplotlib.lines import Line2D
         handles = [
             Line2D([0], [0], marker=style.raster_marker, color="w",
                    markerfacecolor=colors.get(g, "#333333"),
@@ -133,6 +134,7 @@ def raster_plot_matrix(
     color: str = "#1f77b4",
     **scatter_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot spike raster given matrix of spikes."""
     style = style or get_default_style()
 
     if time_range is not None:

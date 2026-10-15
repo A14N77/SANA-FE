@@ -70,6 +70,7 @@ def plot_energy(
     ylabel: Optional[str] = None,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot energy time series."""
     style = style or get_default_style()
     df = performance_to_dataframe(source)
 
@@ -174,6 +175,7 @@ def plot_throughput(
     ylabel: Optional[str] = None,
     **plot_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot throughput time series."""
     style = style or get_default_style()
     df = performance_to_dataframe(source)
 
@@ -270,6 +272,7 @@ def plot_message_latency(
     ylabel: str = "Count",
     **hist_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot spike message (packet) metrics."""
     style = style or get_default_style()
     df = messages_to_dataframe(source)
 

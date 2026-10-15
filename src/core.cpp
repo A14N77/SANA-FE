@@ -251,7 +251,7 @@ sanafe::PipelineUnit &sanafe::Core::create_pipeline_unit(
         const std::filesystem::path plugin_lib_path =
                 config.model_info.plugin_library_path.value();
         TRACE1(CHIP, "Creating unit from plugin: %s.\n",
-                plugin_lib_path.c_str());
+                plugin_lib_path.string().c_str());
         pipeline_hw.emplace_back(
                 plugin_get_hw(config.model_info.name, plugin_lib_path));
     }

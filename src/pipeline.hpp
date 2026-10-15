@@ -117,7 +117,7 @@ public:
     }
 
     // Normal member functions and function pointers
-    void set_attributes_hw(std::string unit_name, const ModelInfo &model);
+    void set_attributes_hw(std::string unit_name, const ModelInfo &model_info);
     PipelineResult process(Timestep &ts, MappedNeuron &n, std::optional<MappedConnection *> con, const PipelineResult &input);
     void register_attributes(const std::set<std::string> &attribute_names);
     void register_attributes(const std::unordered_map<std::string, std::string> &attributes_with_descriptions);
@@ -255,7 +255,7 @@ public:
     {
         throw std::logic_error("Error: Synapse H/W called with soma inputs");
     }
-    void set_attribute_neuron(size_t neuron_address,  const std::string &attribute_name, const ModelAttribute &param) final {};
+    void set_attribute_neuron(size_t /*neuron_address*/,  const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) final {};
 };
 
 class DendriteUnit : public PipelineUnit
@@ -297,7 +297,7 @@ public:
     {
         throw std::logic_error("Error: Soma H/W called with dendrite inputs");
     }
-    void set_attribute_edge(size_t synapse_address, const std::string &attribute_name, const ModelAttribute &param) final {};
+    void set_attribute_edge(size_t /*synapse_address*/, const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) final {};
     void track_connection(size_t /*synapse_address*/, size_t /*src_neuron_id*/, size_t /*dest_neuron_id*/) final {};
 };
 

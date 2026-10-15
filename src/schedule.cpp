@@ -29,6 +29,10 @@
 #include "schedule.hpp"
 #include "timestep.hpp"
 
+// Performance critical code, so don't add a ton of extra bounds checking. There
+//  may be a better/safer way to do this, for now, disable this linter noise
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+
 namespace
 {
 sanafe::TimingModelFunc get_model_function(sanafe::TimingModel model)
@@ -65,9 +69,9 @@ double sanafe::schedule_messages_timestep_simple(
     //  message processing for each core, and takes the maximum latency of
     //  any core in the design.
     //
-    // This scheduler is extremely simple and therefore
-    //  fast (also easily done in parallel), however, it won't capture any
-    //  network interactions or resource contention.
+    // This scheduler is extremely simple and therefore fast (also easily run
+    //  in parallel), however, it won't capture any network interactions or
+    //  resource contention.
     Timestep &ts_data = ts.get();
     const size_t cores = ts_data.messages.size();
     std::vector<double> neuron_processing_latencies(cores, 0.0);
@@ -619,7 +623,8 @@ std::pair<int, int> sanafe::NocInfo::get_route_xy_increments(
     return std::make_pair(x_increment, y_increment);
 }
 
-void sanafe::schedule_messages_thread(Scheduler &scheduler, const int thread_id)
+void sanafe::schedule_messages_thread(
+        Scheduler &scheduler, [[maybe_unused]] const int thread_id)
 {
     while (!scheduler.should_stop)
     {
@@ -659,3 +664,5 @@ void sanafe::schedule_stop_all_threads(Scheduler &scheduler)
 
     TRACE1(SCHEDULER, "All threads stopped successfully.\n");
 }
+
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)

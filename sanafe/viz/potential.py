@@ -37,13 +37,14 @@ def plot_potential(
     ylabel: str = "Neuron",
     **imshow_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot neuron potential time series as heatmaps."""
     style = style or get_default_style()
     df = potentials_to_dataframe(source, neuron_ids=neuron_ids)
 
     if time_range is not None:
         df = df.iloc[time_range[0]:time_range[1]]
 
-    n_timesteps, n_neurons = df.shape
+    _, n_neurons = df.shape
     timesteps = np.asarray(df.index)
     t_start = int(timesteps[0]) if len(timesteps) else 0
     t_end = int(timesteps[-1]) + 1 if len(timesteps) else 1
@@ -104,6 +105,7 @@ def plot_potential_lines(
     ylabel: str = "Membrane Potential",
     **plot_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot potential time-series as line graphs."""
     style = style or get_default_style()
     df = potentials_to_dataframe(source, neuron_ids=neuron_ids)
 

@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-import numpy as np
 
 DEFAULT_COLORS = [
     "#1f77b4",  # Blue
@@ -74,7 +73,7 @@ class SANAFEStyle:
         grid_alpha: Transparency of grid lines
         tight_layout: Whether to use tight_layout by default
     """
-    colors: List[str] = field(default_factory=lambda: DEFAULT_COLORS.copy())
+    colors: List[str] = field(default_factory=DEFAULT_COLORS.copy)
     figure_size: Tuple[float, float] = (8.0, 5.0)
     dpi: int = 100
     font_family: str = "sans-serif"
@@ -185,6 +184,7 @@ _default_style: SANAFEStyle = SANAFEStyle()
 
 
 def get_default_style() -> SANAFEStyle:
+    """Get default stylesheet"""
     return _default_style
 
 
@@ -192,7 +192,7 @@ def set_default_style(style: Optional[SANAFEStyle] = None) -> None:
     """
     Set the default style for all SANA-FE plots.
     """
-    global _default_style
+    global _default_style  # pylint: disable=global-statement
     if style is None:
         _default_style = SANAFEStyle()
     else:
@@ -255,20 +255,20 @@ def get_colormap(
             NEUROMORPHIC_CMAP_COLORS,
             N=n_colors,
         )
-    elif name == "activity":
+    if name == "activity":
         return LinearSegmentedColormap.from_list(
             "activity",
             ["#2166ac", "#f7f7f7", "#b2182b"],
             N=n_colors,
         )
-    elif name == "energy":
+    if name == "energy":
         return LinearSegmentedColormap.from_list(
             "energy",
             ["#1a9850", "#ffffbf", "#d73027"],
             N=n_colors,
         )
-    else:
-        return plt.get_cmap(name)
+
+    return plt.get_cmap(name)
 
 
 def create_figure(
@@ -309,6 +309,7 @@ def style_axis(
     xlim: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[float, float]] = None,
 ) -> plt.Axes:
+    """Apply SANA-FE style to given axis."""
     if style is None:
         style = _default_style
 

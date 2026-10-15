@@ -76,7 +76,7 @@ sanafe::NeuronGroup::NeuronGroup(const std::string group_name,
 sanafe::Neuron::Neuron(const size_t neuron_offset, SpikingNetwork &net,
         std::string parent_group_name, const NeuronConfiguration &config)
         : parent_group_name(std::move(parent_group_name))
-        , parent_net(net)
+        , parent_net(&net)
         , offset(neuron_offset)
 {
     set_attributes(config);
@@ -85,7 +85,7 @@ sanafe::Neuron::Neuron(const size_t neuron_offset, SpikingNetwork &net,
 void sanafe::Neuron::map_to_core(const CoreConfiguration &core)
 {
     this->core_address = core.address;
-    SpikingNetwork &net = parent_net;
+    SpikingNetwork &net = *parent_net;
     mapping_order = net.update_mapping_count();
     TRACE1(NET, "Mapping order for nid:%s.%zu = %zu\n",
             parent_group_name.c_str(), offset, mapping_order);
@@ -137,23 +137,24 @@ std::string sanafe::Neuron::info() const
 }
 
 sanafe::NeuronGroup &sanafe::SpikingNetwork::create_neuron_group(
-        const std::string name, const size_t neuron_count,
+        const std::string group_name, const size_t neuron_count,
         const NeuronConfiguration &default_config)
 {
-    const bool group_exists_already = groups.find(name) != groups.end();
+    const bool group_exists_already = groups.find(group_name) != groups.end();
     if (group_exists_already)
     {
-        const std::string error = "Group: " + name + " already exists in SNN.";
+        const std::string error =
+                "Group: " + group_name + " already exists in SNN.";
         INFO("Error: %s", error.c_str());
         throw std::invalid_argument(error);
     }
 
-    groups.emplace(
-            name, NeuronGroup(name, *this, neuron_count, default_config));
-    TRACE1(NET, "Created neuron group gid:%s with %zu neurons\n", name.c_str(),
-            neuron_count);
+    groups.emplace(group_name,
+            NeuronGroup(group_name, *this, neuron_count, default_config));
+    TRACE1(NET, "Created neuron group gid:%s with %zu neurons\n",
+            group_name.c_str(), neuron_count);
 
-    return groups.at(name);
+    return groups.at(group_name);
 }
 
 size_t sanafe::SpikingNetwork::update_mapping_count()
@@ -191,6 +192,14 @@ size_t sanafe::Neuron::connect_to_neuron(Neuron &dest)
     return edge.id;
 }
 
+void sanafe::NeuronGroup::map_to_core(const CoreConfiguration &core)
+{
+    for (auto &n : neurons)
+    {
+        n.map_to_core(core);
+    }
+}
+
 sanafe::SpikingNetwork sanafe::load_net(const std::filesystem::path &path,
         Architecture &arch, const bool use_netlist_format)
 {
@@ -199,22 +208,23 @@ sanafe::SpikingNetwork sanafe::load_net(const std::filesystem::path &path,
     network_fp.open(path);
     if (network_fp.fail())
     {
-        const std::string error = "Error: Network file: failed to open (" +
-                std::string(path) + ").";
+        const std::string error =
+                "Error: Network file: failed to open (" + path.string() + ").";
         throw std::invalid_argument(error);
     }
 
     SpikingNetwork net;
     if (use_netlist_format)
     {
-        INFO("Loading network from netlist file (legacy): %s\n", path.c_str());
+        INFO("Loading network from netlist file (legacy): %s\n",
+                path.string().c_str());
         // Fall back to the original netlist based format used by SANA-FE v1.
         //  This is supported mainly for back-compatibility
         net = netlist_parse_file(network_fp, arch);
     }
     else
     {
-        INFO("Loading network from YAML file: %s\n", path.c_str());
+        INFO("Loading network from YAML file: %s\n", path.string().c_str());
         net = yaml_parse_network_file(network_fp, arch);
     }
 
@@ -234,7 +244,7 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
     size_t edge_idx = 0UL;
     for (auto [source_id, dest_id] : source_dest_id_pairs)
     {
-        TRACE2(NET, "Connecting neurons, neurons.size=%lu\n", neurons.size());
+        TRACE2(NET, "Connecting neurons, neurons.size=%zu\n", neurons.size());
         if (source_id >= neurons.size())
         {
             INFO("source_id:%zu out of range (0 <= id <= %zu).\n", source_id,
@@ -248,13 +258,12 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
             throw std::invalid_argument("Error: dest nid is out of range.");
         }
 
-        Neuron &source = neurons[source_id];
-        Neuron &dest = dest_group.neurons[dest_id];
+        Neuron &source = neurons.at(source_id);
+        Neuron &dest = dest_group.neurons.at(dest_id);
         const size_t connection_idx = source.connect_to_neuron(dest);
-        Connection &con = source.edges_out[connection_idx];
+        Connection &con = source.edges_out.at(connection_idx);
 
         // Create attributes map for this neuron
-        std::map<std::string, ModelAttribute> attributes;
         for (const auto &[key, value_list] : attribute_lists)
         {
             if (value_list.size() != source_dest_id_pairs.size())
@@ -266,11 +275,17 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
                         "Error: Length of attribute list != "
                         "number of defined edges.");
             }
-            attributes[key] = value_list.at(edge_idx);
+            const ModelAttribute &attribute = value_list.at(edge_idx);
+            if (attribute.forward_to_synapse)
+            {
+                con.synapse_attributes[key] = attribute;
+            }
+            if (attribute.forward_to_dendrite)
+            {
+                con.dendrite_attributes[key] = attribute;
+            }
         }
 
-        con.synapse_attributes = attributes;
-        con.dendrite_attributes = attributes;
         ++edge_idx;
     }
 }
@@ -535,7 +550,7 @@ void sanafe::NeuronGroup::conv2d_create_and_configure_connection(Neuron &source,
 {
     // Create the connection
     const size_t con_idx = source.connect_to_neuron(dest);
-    Connection &con = source.edges_out[con_idx];
+    Connection &con = source.edges_out.at(con_idx);
 
     // Set the attributes for this connection
     for (const auto &[key, attribute_list] : attribute_lists)
@@ -568,18 +583,19 @@ void sanafe::NeuronGroup::connect_neurons_dense(NeuronGroup &dest_group,
         const std::map<std::string, std::vector<ModelAttribute>>
                 &attribute_lists)
 {
-    for (size_t source_index = 0; source_index < neurons.size(); ++source_index)
+    for (size_t source_index = 0UL; source_index < neurons.size();
+            ++source_index)
     {
-        Neuron &source = neurons[source_index];
+        Neuron &source = neurons.at(source_index);
 
-        for (size_t dest_index = 0; dest_index < dest_group.neurons.size();
+        for (size_t dest_index = 0UL; dest_index < dest_group.neurons.size();
                 ++dest_index)
         {
-            Neuron &dest = dest_group.neurons[dest_index];
+            Neuron &dest = dest_group.neurons.at(dest_index);
             const size_t list_index =
                     (source_index * dest_group.neurons.size()) + dest_index;
             const size_t con_idx = source.connect_to_neuron(dest);
-            Connection &con = source.edges_out[con_idx];
+            Connection &con = source.edges_out.at(con_idx);
             for (const auto &[key, attribute_list] : attribute_lists)
             {
                 if (attribute_list.size() <= list_index)
@@ -590,7 +606,7 @@ void sanafe::NeuronGroup::connect_neurons_dense(NeuronGroup &dest_group,
                     throw std::invalid_argument(
                             "Not enough entries defined for attribute");
                 }
-                const ModelAttribute &attribute = attribute_list[list_index];
+                const ModelAttribute &attribute = attribute_list.at(list_index);
                 if (attribute.forward_to_synapse)
                 {
                     con.synapse_attributes[key] = attribute;
@@ -610,7 +626,8 @@ void sanafe::SpikingNetwork::save_netlist(
     std::ofstream out(path);
     if (!out.is_open())
     {
-        INFO("Error: Couldn't open net file to save to: %s\n", path.c_str());
+        INFO("Error: Couldn't open net file to save to: %s\n",
+                path.string().c_str());
         throw std::invalid_argument(
                 "Error: Couldn't open net file to save to.");
     }

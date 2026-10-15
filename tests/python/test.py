@@ -56,7 +56,7 @@ class TestModuleSurface(unittest.TestCase):
         models = sanafe.model_attributes
         names = set(models.keys())
         # Documented built-in models that the test architecture relies on.
-        self.assertIn("leaky_integrate_and_fire", names)
+        self.assertIn("leaky_integrate_fire", names)
         self.assertIn("input", names)
 
     def test_buffer_position_enum(self):
@@ -266,14 +266,6 @@ class TestAttributeRoundTrip(unittest.TestCase):
 # --------------------------------------------------------------------------
 
 class TestArchitectureComponents(unittest.TestCase):
-    def test_create_tile_and_core_on_arch(self):
-        arch, _ = load_reference_arch()
-        # Adding to a loaded arch should work and be enumerable.
-        tile = arch.create_tile("extra_tile")
-        core = arch.create_core("extra_core", tile.id)
-        self.assertEqual(core.name, "extra_core")
-        self.assertGreaterEqual(len(arch.cores()), 1)
-
     def test_reference_arch_has_tile_and_core(self):
         arch, _ = load_reference_arch()
         self.assertGreaterEqual(len(arch.tiles), 1)

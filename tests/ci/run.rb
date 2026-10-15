@@ -16,6 +16,7 @@ puts "Logs will be saved to #{log_dir}/"
 puts "-------------------------------"
 
 build_status = system("ruby tests/ci/check_build.rb")
+windows_status = system("ruby tests/ci/check_windows.rb")
 format_status = system("ruby tests/ci/check_format.rb")
 tidy_status = system("ruby tests/ci/check_tidy.rb")
 cppcheck_status = system("ruby tests/ci/check_cppcheck.rb")

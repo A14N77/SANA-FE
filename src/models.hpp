@@ -39,7 +39,7 @@ public:
     CurrentBasedSynapseModel &operator=(CurrentBasedSynapseModel &&other) = delete;
 
     PipelineResult update(size_t synapse_address, bool read, long int simulation_time) override;
-    void set_attribute_hw(const std::string &attribute_name, const ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
     void set_attribute_edge(size_t synapse_address, const std::string &attribute_name, const ModelAttribute &param) override;
     void reset() override;
     static inline const std::unordered_map<std::string, std::string> current_based_synapse_attributes{
@@ -76,9 +76,9 @@ public:
     {
         accumulated_charges = std::vector<std::optional<double>>(loihi_max_compartments, std::nullopt);
     }
-    void set_attribute_hw(const std::string &attribute_name, const ModelAttribute &param) override {};
-    void set_attribute_neuron(size_t neuron_address, const std::string &attribute_name, const ModelAttribute &param) override {};
-    void set_attribute_edge(size_t synapse_address, const std::string &attribute_name, const ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
+    void set_attribute_neuron(size_t /*neuron_address*/, const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
+    void set_attribute_edge(size_t /*synapse_address*/, const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
     // Technically soma attributes, but due to common usage, suppress warnings
     //  for these in the dendrite H/W too
     static inline const std::set<std::string> accumulator_attributes{
@@ -130,8 +130,8 @@ public:
             accumulator = std::vector<std::optional<double>>(loihi_max_compartments, std::nullopt);
         }
     }
-    void set_attribute_hw(const std::string &attribute_name, const ModelAttribute &param) override {};
-    void set_attribute_neuron(size_t neuron_address, const std::string &attribute_name, const ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
+    void set_attribute_neuron(size_t /*neuron_address*/, const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
     void set_attribute_edge(size_t synapse_address, const std::string &attribute_name, const ModelAttribute &param) override;
     void track_connection(size_t synapse_address, size_t /*src_neuron_id*/, size_t /*dest_neuron_id*/) override;
 
@@ -173,7 +173,7 @@ public:
     MultiTapModel1D &operator=(MultiTapModel1D &&other) = delete;
 
     PipelineResult update(size_t neuron_address, std::optional<double> current, std::optional<size_t> synapse_address, long int simulation_time) override;
-    void set_attribute_hw(const std::string &attribute_name, const ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
     void set_attribute_neuron(size_t neuron_address, const std::string &attribute_name, const ModelAttribute &param) override;
     void set_attribute_edge(size_t synapse_address, const std::string &attribute_name, const ModelAttribute &param) override;
     void reset() override;
@@ -292,7 +292,7 @@ public:
     TrueNorthModel &operator=(const TrueNorthModel &other) = delete;
     TrueNorthModel &operator=(TrueNorthModel &&other) = delete;
 
-    void set_attribute_hw(const std::string &attribute_name, const ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
     void set_attribute_neuron(size_t neuron_address,
             const std::string &attribute_name,
             const ModelAttribute &param) override;
@@ -351,7 +351,7 @@ public:
     InputModel &operator=(const InputModel &other) = delete;
     InputModel &operator=(InputModel &&other) = delete;
 
-    void set_attribute_hw(const std::string &attribute_name, const ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string &/*attribute_name*/, const ModelAttribute &/*param*/) override {};
     void set_attribute_neuron(size_t neuron_address, const std::string &attribute_name, const ModelAttribute &param) override;
     PipelineResult update(size_t neuron_address, std::optional<double> current_in, long int simulation_time) override;
     void reset() override { send_spike = false;
@@ -365,7 +365,7 @@ public:
 private:
     static inline unsigned int instance_counter = 0;
     std::vector<bool> spikes;
-    std::vector<bool>::const_iterator curr_spike{spikes.begin()};
+    size_t curr_spike{0UL};
     std::uniform_real_distribution<double> uniform_distribution{0.0, 1.0};
     // Intentionally use a fixed seed to get deterministic results across runs
     // To truly randomize, use:

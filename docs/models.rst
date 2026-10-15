@@ -114,7 +114,7 @@ input
 
 
 
-leaky_integrate_and_fire
+leaky_integrate_fire
 ------------------------
 
 .. list-table::

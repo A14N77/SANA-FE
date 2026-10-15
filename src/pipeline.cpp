@@ -59,8 +59,8 @@ void sanafe::PipelineUnit::check_implemented(
 size_t sanafe::PipelineUnit::add_connection(MappedConnection &con)
 {
     // Add connection and update connection's address
-    const MappedNeuron &pre_neuron = con.pre_neuron_ref.get();
-    const MappedNeuron &post_neuron = con.post_neuron_ref.get();
+    const MappedNeuron &pre_neuron = *(con.pre_neuron);
+    const MappedNeuron &post_neuron = *(con.post_neuron);
 
     // TODO: we track this in the synapse but not the dendrite h/w?
 
@@ -165,14 +165,14 @@ std::string sanafe::PipelineUnit::get_attribute_help(
 }
 
 void sanafe::PipelineUnit::set_attributes_hw(
-        std::string unit_name, const ModelInfo &model)
+        std::string unit_name, const ModelInfo &model_info)
 {
-    model_attributes = model.model_attributes;
-    plugin_lib = model.plugin_library_path;
+    model_attributes = model_info.model_attributes;
+    plugin_lib = model_info.plugin_library_path;
     name = std::move(unit_name);
-    log_energy = model.log_energy;
-    log_latency = model.log_latency;
-    update_every_timestep = model.update_every_timestep;
+    log_energy = model_info.log_energy;
+    log_latency = model_info.log_latency;
+    update_every_timestep = model_info.update_every_timestep;
 
     synapse_set_default_attributes();
     dendrite_set_default_attributes();

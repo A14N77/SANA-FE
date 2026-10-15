@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sanafe"
-version = "2.2.2"
+version = "2.2.9"
 description = "SANA-FE: Simulating Advanced Neuromorphic Architectures for Fast Exploration"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -31,3 +31,24 @@ packages = { find = {} }
 
 [tool.setuptools.package-data]
 sanafe = ["examples/*.yaml", "examples/dvs_challenge.npz"]
+
+[tool.cibuildwheel]
+skip = ["*-win32", "*_i686"]
+
+[tool.pylint."messages control"]
+disable = [
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+    "too-many-locals",
+    "too-many-branches",
+    "too-many-positional-arguments",
+    "too-many-statements",
+    "too-many-lines",
+    "too-many-public-methods",
+    "fixme",
+    "import-error",
+    "no-member",
+    "no-name-in-module",
+    "duplicate-code",
+]

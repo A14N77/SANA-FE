@@ -73,6 +73,7 @@ Quickstart
                 message_trace=message_handle,
                 processing_threads=2,
                 scheduler_threads=1)
+    chip.reset()
     # Mapped neurons can also be reprogrammed on the fly e.g., for dynamic inputs
     mapped_input_neurons = chip.mapped_neuron_groups["foo"]
     mapped_input_neurons[0].set_attributes(model_attributes={"rate": 0.5})
