@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_BUILD_TYPE Shared)
 
+# RISC-V soma plugin lives in its own directory with its own warning flags
+#  (Verilator-generated sources must not inherit -Werror below).
+add_subdirectory(riscv)
+
 if(MSVC)
     add_compile_options(/W4 /WX /wd4127)  # Disable warn on empty control
 else()

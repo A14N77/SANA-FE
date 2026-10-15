@@ -1,0 +1,74 @@
+# riscv_chip.yaml
+#
+# One tile, one core. The soma stage is the riscv_soma plugin: every neuron
+# update runs the RISC-V firmware. Energy and latency for the soma come from
+# the core's cycle count (clock_period / energy_per_cycle), so no
+# energy_*_neuron / latency_*_neuron attributes are set on that unit.
+#
+# Paths are relative to the directory you run from. From a CMake build
+# directory (e.g. build/), the plugin is at plugins/riscv/libriscv_soma.so and
+# lif.hex is copied next to it.
+architecture:
+  name: riscv_demo
+  attributes:
+    link_buffer_size: 4
+    width: 1
+    height: 1
+  tile:
+    - name: tile[0]
+      attributes:
+        energy_north_hop: 2.0e-12
+        latency_north_hop: 1.4e-9
+        energy_east_hop: 2.5e-12
+        latency_east_hop: 1.2e-9
+        energy_south_hop: 2.0e-12
+        latency_south_hop: 1.5e-9
+        energy_west_hop: 1.8e-12
+        latency_west_hop: 2.0e-9
+      core:
+        - name: core[0]
+          attributes:
+            buffer_position: soma
+            max_neurons_supported: 64
+          axon_in:
+            - name: axon_in
+              attributes:
+                energy_message_in: 0.0
+                latency_message_in: 0.0
+          synapse:
+            - name: synapse
+              attributes:
+                model: current_based
+                energy_process_spike: 20.0e-12
+                latency_process_spike: 3.0e-9
+          dendrite:
+            - name: dendrite
+              attributes:
+                model: accumulator
+                energy_update: 0.0
+                latency_update: 0.0
+                update_every_timestep: true
+          soma:
+            - name: riscv_soma
+              attributes:
+                model: riscv_soma
+                plugin: plugins/riscv/libriscv_soma.so
+                backend: reference      # reference | cpp | sv
+                firmware: lif.hex
+                clock_period: 1.0e-9    # 1 GHz core
+                energy_per_cycle: 5.0e-12
+                max_cycles: 1000
+            - name: input[0..7]
+              attributes:
+                model: input
+                energy_access_neuron: 0.0
+                latency_access_neuron: 0.0
+                energy_update_neuron: 0.0
+                latency_update_neuron: 0.0
+                energy_spike_out: 0.0
+                latency_spike_out: 0.0
+          axon_out:
+            - name: axon_out
+              attributes:
+                energy_message_out: 100.0e-12
+                latency_message_out: 5.0e-9

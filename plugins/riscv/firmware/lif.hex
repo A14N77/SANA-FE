@@ -1,0 +1,22 @@
+# lif.hex: leaky integrate-and-fire update, RV32I, one word per line.
+# MMIO base 0x80000000: +0 current_in +4 potential_in +8 threshold +C reset
+#   +10 leak_shift +14 bias | +18 potential_out +1C spike +20 done
+800002b7  # lui   t0, 0x80000
+0042a503  # lw    a0, 4(t0)      v = potential_in
+0002a583  # lw    a1, 0(t0)      current_in
+0102a603  # lw    a2, 16(t0)     leak_shift
+0142a683  # lw    a3, 20(t0)     bias
+00060663  # beq   a2, zero, +12  skip leak if shift == 0
+40c55733  # sra   a4, a0, a2
+40e50533  # sub   a0, a0, a4     v -= v >> leak_shift
+00b50533  # add   a0, a0, a1     v += current_in
+00d50533  # add   a0, a0, a3     v += bias
+0082a783  # lw    a5, 8(t0)      threshold
+00000813  # addi  a6, zero, 0    spike = 0
+00f54663  # blt   a0, a5, +12    no spike if v < threshold
+00c2a503  # lw    a0, 12(t0)     v = reset
+00100813  # addi  a6, zero, 1    spike = 1
+00a2ac23  # sw    a0, 24(t0)     potential_out
+0102ae23  # sw    a6, 28(t0)     spike
+0302a023  # sw    a6, 32(t0)     done
+0000006f  # jal   zero, 0        spin

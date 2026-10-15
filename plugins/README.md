@@ -7,6 +7,10 @@ all of its synaptic, dendritic and somatic hardware models. Using SANA-FE's
 `PipelineUnit` base class, you can implement your own models as hardware
 plugins.
 
+A larger example lives in `plugins/riscv/`: a soma unit modelled as a RISC-V
+core running firmware, with reference, C++ and Verilated SystemVerilog
+backends. See `plugins/riscv/README.md`.
+
 ## Using Plugins
 
 There is one example already provided in the `/plugins` folder implementing a

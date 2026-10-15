@@ -1,0 +1,24 @@
+# riscv_test.yaml
+#
+# Two input neurons drive two LIF neurons that live on the riscv_soma unit.
+# lif.0 gets steady +1.0 per step from in.0 and fires every other step;
+# lif.1 leaks (potential >> 2 per step) and sees a weaker, alternating drive.
+network:
+  name: riscv_test
+  groups:
+    - name: in
+      attributes: [log_spikes: true]
+      neurons:
+        - 0: [spikes: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        - 1: [spikes: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]]
+    - name: lif
+      attributes: [log_spikes: true, log_potential: true]
+      neurons:
+        - 0: [soma: {threshold: 2.0, reset: 0.0, leak_shift: 0, bias: 0.0}]
+        - 1: [soma: {threshold: 2.0, reset: 0.0, leak_shift: 2, bias: 0.0}]
+  edges:
+    - in -> lif: [type: dense, weight: [1.0, 0.5, 0.5, 1.0]]
+mappings:
+  - in.0: [core: 0.0, soma: "input[0]"]
+  - in.1: [core: 0.0, soma: "input[1]"]
+  - lif: [core: 0.0, soma: riscv_soma]
